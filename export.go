@@ -51,6 +51,44 @@ func (b *BoardData) Save(name string) error {
 	return err
 }
 
+func (b *Board) Filter(f *Board) {
+	if b.LeaderboardId != f.LeaderboardId {
+		return
+	}
+	filtered := b.Scores
+	for i, s := range b.Scores {
+		for _, m := range f.Scores {
+			if s == m {
+				filtered = append(b.Scores[:i], b.Scores[i+1:]...)
+			}
+		}
+	}
+	b.Scores = filtered
+}
+
+func (b *BoardData) Filter(f *BoardData) {
+	for idxb := range b.LeaderboardsData {
+		for idxf := range f.LeaderboardsData {
+			b.LeaderboardsData[idxb].Filter(&f.LeaderboardsData[idxf])
+		}
+	}
+}
+
+func (b *Board) Add(a *Board) {
+	for idxa := range a.Scores {
+		exists := false
+		for idxb := range b.Scores {
+			if a.Scores[idxa] == b.Scores[idxb] {
+				exists = true
+				continue
+			}
+		}
+		if !exists {
+			b.Scores = append(b.Scores, a.Scores[idxa])
+		}
+	}
+}
+
 func main() {
 	fmt.Println("Loading file")
 	game_data := BoardData{}

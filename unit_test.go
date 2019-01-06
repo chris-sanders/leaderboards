@@ -1,7 +1,7 @@
 package main
 
 import (
-	//	"fmt"
+	"fmt"
 	"github.com/google/go-cmp/cmp"
 	"testing"
 )
@@ -82,5 +82,72 @@ func TestBoardDataLoad(t *testing.T) {
 	err = test_data1.Load("")
 	if err == nil {
 		t.Error("Load should have returned an error")
+	}
+}
+
+func TestBoardFilter(t *testing.T) {
+	board1 := &Data1().LeaderboardsData[0]
+	board2 := &data2.LeaderboardsData[0]
+	board1.Filter(board2)
+	expect := 1
+	got := len(board1.Scores)
+	if got != expect {
+		t.Errorf("Expected %v scores got %v", expect, got)
+	}
+	if board1.Scores[0] == board2.Scores[0] {
+		t.Errorf("Scores are the same after filtering")
+	}
+	board1 = &Data2().LeaderboardsData[0]
+	board1.Filter(board2)
+	expect = 0
+	got = len(board1.Scores)
+	if len(board1.Scores) > 0 {
+		t.Errorf("Expected %v scores got %v", expect, got)
+	}
+}
+
+func TestBoardDataFilter(t *testing.T) {
+	data1 := Data1()
+	data1.Filter(data2)
+	expect := 1
+	got := len(data1.LeaderboardsData[0].Scores)
+	if got != expect {
+		t.Errorf("Expected %v scores got %v", expect, got)
+	}
+	data1.Filter(data2)
+	expect = 1
+	got = len(data1.LeaderboardsData[0].Scores)
+	if got != expect {
+		t.Errorf("Expected %v scores got %v", expect, got)
+	}
+	data1.Filter(data1)
+	expect = 0
+	got = len(data1.LeaderboardsData[0].Scores)
+	if got != expect {
+		t.Errorf("Expected %v scores got %v", expect, got)
+	}
+}
+
+func TestBoardAdd(t *testing.T) {
+	board1 := &Data1().LeaderboardsData[0]
+	board2 := &Data2().LeaderboardsData[0]
+	board1.Add(board2)
+	fmt.Printf("board1: %v\n", board1)
+	fmt.Printf("board2: %v\n", board2)
+	expect := 2
+	got := len(board1.Scores)
+	if expect != got {
+		t.Error("Added duplicate score")
+	}
+	board2.Add(board1)
+	got = len(board2.Scores)
+	if expect != got {
+		t.Error("Didn't add missing score")
+	}
+	fmt.Printf("board1: %v\n", board1)
+	fmt.Printf("board2: %v\n", board2)
+	if !cmp.Equal(board1, board2) {
+		t.Error("Boards don't match after adding")
+		t.Errorf(cmp.Diff(board1, board2))
 	}
 }
