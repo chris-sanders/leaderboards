@@ -22,7 +22,7 @@ type Board struct {
 
 type BoardData struct {
 	LeaderboardsData []Board `json:"_leaderboardsData"`
-	File             string
+	File             string  `json:"-"`
 }
 
 func (b *BoardData) Load(name string) error {
@@ -58,9 +58,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	// spew.Config.DisableCapacities = true
-	// spew.Config.DisableMethods = true
-	// spew.Dump(game_data)
 
 	fmt.Println("Writing file")
 	game_data.Save("zarek-db.dat")
