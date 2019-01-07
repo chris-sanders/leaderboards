@@ -1,9 +1,8 @@
-package main
+package boardtools
 
 import (
 	"encoding/json"
-	"fmt"
-	//	"github.com/davecgh/go-spew/spew"
+	"errors"
 	"io/ioutil"
 	"os"
 )
@@ -45,15 +44,15 @@ func (b *BoardData) Load(name string) error {
 func (b *BoardData) Save(name string) error {
 	byteSlice, err := json.Marshal(b)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	err = ioutil.WriteFile(name, byteSlice, 0644)
 	return err
 }
 
-func (b *Board) Filter(f *Board) {
+func (b *Board) Filter(f *Board) error {
 	if b.LeaderboardId != f.LeaderboardId {
-		return
+		return errors.New("Board Ids do not match")
 	}
 	filtered := b.Scores
 	for i, s := range b.Scores {
@@ -64,6 +63,7 @@ func (b *Board) Filter(f *Board) {
 		}
 	}
 	b.Scores = filtered
+	return nil
 }
 
 func (b *BoardData) Filter(f *BoardData) {
@@ -74,7 +74,11 @@ func (b *BoardData) Filter(f *BoardData) {
 	}
 }
 
-func (b *Board) Add(a *Board) {
+func (b *Board) Add(a *Board) error {
+	if b.LeaderboardId != a.LeaderboardId {
+		err := errors.New("Board Ids do not match")
+		return err
+	}
 	for idxa := range a.Scores {
 		exists := false
 		for idxb := range b.Scores {
@@ -87,16 +91,5 @@ func (b *Board) Add(a *Board) {
 			b.Scores = append(b.Scores, a.Scores[idxa])
 		}
 	}
-}
-
-func main() {
-	fmt.Println("Loading file")
-	game_data := BoardData{}
-	err := game_data.Load("LocalLeaderboards.dat")
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println("Writing file")
-	game_data.Save("zarek-db.dat")
+	return nil
 }

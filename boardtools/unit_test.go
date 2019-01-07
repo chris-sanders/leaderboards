@@ -1,4 +1,4 @@
-package main
+package boardtools
 
 import (
 	"fmt"
@@ -44,6 +44,7 @@ func Data2() *BoardData {
 }
 
 func TestBoardDataSave(t *testing.T) {
+	fmt.Println("Running tests")
 	//data1 := Data1()
 	err := data1.Save("test1.dat")
 	if err != nil {
@@ -104,6 +105,15 @@ func TestBoardFilter(t *testing.T) {
 	if len(board1.Scores) > 0 {
 		t.Errorf("Expected %v scores got %v", expect, got)
 	}
+	err := board1.Filter(board1)
+	if err != nil {
+		t.Error("Empty boards should filter with out error")
+		t.Error(err)
+	}
+	err = board1.Filter(&Board{})
+	if err == nil {
+		t.Error("Boards should not filter if Id does not match")
+	}
 }
 
 func TestBoardDataFilter(t *testing.T) {
@@ -132,8 +142,6 @@ func TestBoardAdd(t *testing.T) {
 	board1 := &Data1().LeaderboardsData[0]
 	board2 := &Data2().LeaderboardsData[0]
 	board1.Add(board2)
-	fmt.Printf("board1: %v\n", board1)
-	fmt.Printf("board2: %v\n", board2)
 	expect := 2
 	got := len(board1.Scores)
 	if expect != got {
@@ -144,10 +152,22 @@ func TestBoardAdd(t *testing.T) {
 	if expect != got {
 		t.Error("Didn't add missing score")
 	}
-	fmt.Printf("board1: %v\n", board1)
-	fmt.Printf("board2: %v\n", board2)
 	if !cmp.Equal(board1, board2) {
 		t.Error("Boards don't match after adding")
 		t.Errorf(cmp.Diff(board1, board2))
+	}
+	board3 := &Board{}
+	err := board3.Add(board1)
+	if err == nil {
+		t.Error("Boards should not add if Id does not match")
+	}
+	board3.LeaderboardId = board1.LeaderboardId
+	err = board3.Add(board1)
+	if err != nil {
+		t.Error("Empty board does not add")
+	}
+	if !cmp.Equal(board3, board1) {
+		t.Error("Boards don't match after adding")
+		t.Errorf(cmp.Diff(board3, board1))
 	}
 }
