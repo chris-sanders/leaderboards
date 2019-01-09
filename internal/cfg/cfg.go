@@ -1,10 +1,12 @@
 package cfg
 
 import (
-	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -13,22 +15,23 @@ const SettingsFile string = "settings.yaml"
 
 type Config struct {
 	Sync struct {
-		Server   string // `mapstructure:server`
-		User     string // `mapstructure:user`
-		Password string // `mapstructure:password`
-		Port     string // `mapstructure:port`
-		Folder   string // `mapstructure:folder`
-		Accounts string // `mapstructure:accounts`
-	} // `mapstructure:sync`
+		Server   string
+		User     string
+		Password string
+		Port     string
+		Folder   string
+		Accounts string
+	}
 	Global struct {
-		Logging      string // `mapstructure:logging`
-		Account      string // `mapstructure:account`
-		Local_folder string // `mapstructure:local_folder`
-	} // `mapstructure:global`
+		Logging      string
+		Account      string
+		Local_folder string
+		Local_file   string `json:"-"`
+	}
 	Import struct {
-		Remote_limit int // `mapstrucutre:"remote_limit"`
-		Local_limit  int // `mapstrucutre:"local_limit"`
-	} // `mapstructure:"import"`
+		Remote_limit int
+		Local_limit  int
+	}
 }
 
 func (c *Config) Write() error {
@@ -44,8 +47,19 @@ func (c *Config) Write() error {
 	return nil
 }
 
+func postprocess(c *Config) {
+	var full_path string
+	switch c.Global.Local_folder {
+	case "APPDATA":
+		full_path = filepath.Join(os.ExpandEnv("${APPDATA}"), "LocalLeaderboards.dat")
+	default:
+		full_path = filepath.Join(c.Global.Local_folder, "LocalLeaderboards.dat")
+	}
+	c.Global.Local_file = full_path
+}
+
 func (c *Config) New() (*Config, error) {
-	fmt.Println("Loading config")
+	log.Debug("Loading config")
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
 	viper.SetConfigName(SettingsName)
@@ -56,6 +70,7 @@ func (c *Config) New() (*Config, error) {
 	viper.SetDefault("Sync.Password", "sftp-password")
 	viper.SetDefault("Sync.Port", 22)
 	viper.SetDefault("Global.Logging", "INFO")
+	viper.SetDefault("Global.Account", "unique-name")
 	viper.SetDefault("Global.Local_folder", "APPDATA")
 	viper.SetDefault("Import.Remote_limit", 1)
 	viper.SetDefault("Import.Local_limit", 10)
@@ -70,5 +85,6 @@ func (c *Config) New() (*Config, error) {
 	if err != nil {
 		return c, err
 	}
+	postprocess(c)
 	return c, nil
 }

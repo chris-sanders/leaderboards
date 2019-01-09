@@ -1,12 +1,22 @@
 package cfg
 
 import (
-	_ "fmt"
+	log "github.com/sirupsen/logrus"
+	"os"
 	"testing"
 )
 
+var config *Config
+
 func TestNewConfg(t *testing.T) {
-	config, err := (&Config{}).New()
+	logFile, err := os.OpenFile("leaderboards.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer logFile.Close()
+	log.SetOutput(logFile)
+
+	config, err = (&Config{}).New()
 	if err != nil {
 		config, err = (&Config{}).New()
 		if err != nil {
@@ -43,4 +53,27 @@ func TestNewConfg(t *testing.T) {
 	if gots != expects {
 		t.Errorf("Wrong default value %v, expected %v", gots, expects)
 	}
+	expect = 0
+	info, err := os.Stat("leaderboards.log")
+	got = int(info.Size())
+	if got != expect {
+		t.Errorf("Log file exected %v bytes, got %v bytes", expect, got)
+	}
+	err = os.Remove("leaderboards.log")
+	if err != nil {
+		t.Errorf("Failed to remove log file: %v", err)
+	}
+	err = os.Remove("settings.yaml")
+	if err != nil {
+		t.Errorf("Failed to remove log file: %v", err)
+	}
+}
+
+func TestPostProcessing(t *testing.T) {
+	expect := "LocalLeaderboards.dat"
+	got := config.Global.Local_file
+	if got != expect {
+		t.Errorf("Expected local_file %v, got %v", expect, got)
+	}
+
 }

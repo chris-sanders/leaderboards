@@ -3,6 +3,8 @@ package boardtools
 import (
 	"fmt"
 	"github.com/google/go-cmp/cmp"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -44,13 +46,12 @@ func Data2() *BoardData {
 }
 
 func TestBoardDataSave(t *testing.T) {
+	// Log.SetLevel(Log.TraceLevel)
 	fmt.Println("Running tests")
-	//data1 := Data1()
 	err := data1.Save("test1.dat")
 	if err != nil {
 		t.FailNow()
 	}
-	//data2 := Data2()
 	err = data2.Save("test2.dat")
 	if err != nil {
 		t.FailNow()
@@ -87,6 +88,7 @@ func TestBoardDataLoad(t *testing.T) {
 }
 
 func TestBoardFilter(t *testing.T) {
+	// Filter board1 with board2
 	board1 := &Data1().LeaderboardsData[0]
 	board2 := &data2.LeaderboardsData[0]
 	board1.Filter(board2)
@@ -98,13 +100,16 @@ func TestBoardFilter(t *testing.T) {
 	if board1.Scores[0] == board2.Scores[0] {
 		t.Errorf("Scores are the same after filtering")
 	}
-	board1 = &Data2().LeaderboardsData[0]
-	board1.Filter(board2)
+	// Filter board 1 with self
+	board1 = &Data1().LeaderboardsData[0]
+	board1.Filter(board1)
 	expect = 0
 	got = len(board1.Scores)
 	if len(board1.Scores) > 0 {
 		t.Errorf("Expected %v scores got %v", expect, got)
+		t.Error(board1)
 	}
+	// Filter with an empty board
 	err := board1.Filter(board1)
 	if err != nil {
 		t.Error("Empty boards should filter with out error")
@@ -169,5 +174,30 @@ func TestBoardAdd(t *testing.T) {
 	if !cmp.Equal(board3, board1) {
 		t.Error("Boards don't match after adding")
 		t.Errorf(cmp.Diff(board3, board1))
+	}
+	files, err := filepath.Glob("*.dat")
+	if err != nil {
+		t.Errorf("Error listing dat files: %v", err)
+	}
+	for _, f := range files {
+		if err = os.Remove(f); err != nil {
+			t.Errorf("Error removing dat files: %v", err)
+		}
+	}
+}
+
+func TestBoardDataAdd(t *testing.T) {
+	// data1 = &Data1()
+	data2 = &BoardData{}
+	data2.Add(data1)
+	/*
+		if len(data2.LeaderboardsData) != len(data1.LeaderboardsData) {
+			t.Errorf("Add new board in board data failed")
+		}
+	*/
+	if !cmp.Equal(data1.LeaderboardsData, data2.LeaderboardsData) {
+		t.Errorf("BoardData add didn't add new data to empty board:\n%v",
+			cmp.Diff(data1.LeaderboardsData,
+				data2.LeaderboardsData))
 	}
 }
