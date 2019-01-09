@@ -31,8 +31,6 @@ func main() {
 		return
 	}
 
-	fmt.Println("Writing database file")
-	log.Info("Writing database file")
 	data_file := fmt.Sprintf("%v-db.dat", config.Global.Account)
 	db_data := &bt.BoardData{}
 	err = db_data.Load(data_file)
@@ -44,7 +42,12 @@ func main() {
 	if len(new_scores) > 0 {
 		fmt.Printf("Adding new scores:\n%v \n", new_scores)
 		log.Infof("Adding new scores:\n%v \n", new_scores)
+		fmt.Println("Writing database file")
+		log.Info("Writing database file")
+		db_data.Add(game_data)
+		db_data.Save(db_data.File)
+	} else {
+		fmt.Println("No new data to export")
+		log.Info("No new data to export")
 	}
-	db_data.Add(game_data)
-	db_data.Save(db_data.File)
 }
