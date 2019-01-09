@@ -3,9 +3,11 @@ package boardtools
 import (
 	"encoding/json"
 	"errors"
-	. "github.com/chris-sanders/leaderboards/internal/logger"
+	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type Score struct {
@@ -54,7 +56,7 @@ func (b *BoardData) Save(name string) error {
 func scoreInSlice(s Score, slice []Score) bool {
 	for _, m := range slice {
 		if s == m {
-			Log.Tracef("Score %v is in slice", s)
+			log.Tracef("Score %v is in slice", s)
 			return true
 		}
 	}
@@ -65,14 +67,14 @@ func (b *Board) Filter(f *Board) error {
 	if b.LeaderboardId != f.LeaderboardId {
 		return errors.New("Board Ids do not match")
 	}
-	Log.Tracef("Filtering %v with filter %v", b.LeaderboardId, f.LeaderboardId)
+	log.Tracef("Filtering %v with filter %v", b.LeaderboardId, f.LeaderboardId)
 	filtered := b.Scores[:0]
 	for _, s := range b.Scores {
 		if !scoreInSlice(s, f.Scores) {
 			filtered = append(filtered, s)
 		}
 	}
-	Log.Tracef("Filtered slice: %v", filtered)
+	log.Tracef("Filtered slice: %v", filtered)
 	b.Scores = filtered
 	return nil
 }
@@ -91,18 +93,18 @@ func (b *Board) Add(a *Board) error {
 		err := errors.New("Board Ids do not match")
 		return err
 	}
-	Log.Tracef("Adding %v with  %v", b.LeaderboardId, a.LeaderboardId)
+	log.Tracef("Adding %v with  %v", b.LeaderboardId, a.LeaderboardId)
 	for idxa := range a.Scores {
 		exists := false
 		for idxb := range b.Scores {
 			if a.Scores[idxa] == b.Scores[idxb] {
 				exists = true
-				Log.Tracef("Not adding score %v duplicate %v", a.Scores[idxa], b.Scores[idxb])
+				log.Tracef("Not adding score %v duplicate %v", a.Scores[idxa], b.Scores[idxb])
 				continue
 			}
 		}
 		if !exists {
-			Log.Tracef("Adding new score %v", a.Scores[idxa])
+			log.Tracef("Adding new score %v", a.Scores[idxa])
 			b.Scores = append(b.Scores, a.Scores[idxa])
 		}
 	}
@@ -119,8 +121,33 @@ func (b *BoardData) Add(a *BoardData) {
 			}
 		}
 		if !boardFound {
-			Log.Tracef("Adding new board %v", a.LeaderboardsData[idxa])
+			log.Tracef("Adding new board %v", a.LeaderboardsData[idxa])
 			b.LeaderboardsData = append(b.LeaderboardsData, a.LeaderboardsData[idxa])
 		}
 	}
+}
+
+func (b *BoardData) Marshal() string {
+	var bld strings.Builder
+	for _, board := range b.LeaderboardsData {
+		if len(board.Scores) > 0 {
+			// byteArray, err := json.MarshalIndent(board.Scores, board.LeaderboardId, " ")
+			/*
+				byteArray, err := json.Marshal(board.Scores)
+				if err != nil {
+					log.Error("Unalbe to Marshal board: %v", err)
+				}
+				bld.Write(byteArray)
+				bld.WriteString("\n")
+			*/
+			values := fmt.Sprintf("%v: \n\t", board.LeaderboardId)
+			bld.WriteString(values)
+			for _, score := range board.Scores {
+				score_info := fmt.Sprintf("%v:%v, ", score.PlayerName, score.Score)
+				bld.WriteString(score_info)
+			}
+			bld.WriteString("\n")
+		}
+	}
+	return bld.String()
 }
