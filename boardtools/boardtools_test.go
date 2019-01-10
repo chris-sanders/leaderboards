@@ -201,3 +201,141 @@ func TestBoardDataAdd(t *testing.T) {
 				data2.LeaderboardsData))
 	}
 }
+
+func TestBoardFilterScores(t *testing.T) {
+	board1 := &Data1().LeaderboardsData[0]
+	board1.FilterScores(3)
+	expect := 2
+	got := len(board1.Scores)
+	if expect != got {
+		t.Errorf("Filtered to many scores, expected %v got %v\n%v", expect, got, board1.Scores)
+	}
+	board1.FilterScores(2)
+	expect = 2
+	got = len(board1.Scores)
+	if expect != got {
+		t.Errorf("Filtered to many scores, expected %v got %v\n%v", expect, got, board1.Scores)
+	}
+	board1.FilterScores(1)
+	expect = 1
+	got = len(board1.Scores)
+	if expect != got {
+		t.Errorf("Scores not filtered correctly, expected %v got %v\n%v", expect, got, board1.Scores)
+	}
+	board1.FilterScores(0)
+	expect = 0
+	got = len(board1.Scores)
+	if expect != got {
+		t.Errorf("Scores not filtered correctly, expected %v got %v\n%v", expect, got, board1.Scores)
+	}
+}
+
+func TestBoardDataFilterScores(t *testing.T) {
+	data1 := Data1()
+	data1.LeaderboardsData = append(data1.LeaderboardsData, data1.LeaderboardsData[0])
+	data1.FilterScores(3)
+	expect := 2
+	got := len(data1.LeaderboardsData[0].Scores)
+	if len(data1.LeaderboardsData[0].Scores) != len(data1.LeaderboardsData[1].Scores) {
+		t.Errorf("Boards not filtered the same:\n%v\n%v", data1.LeaderboardsData[0].Scores, data1.LeaderboardsData[1].Scores)
+	}
+	if expect != got {
+		t.Errorf("Filtered to many scores, expected %v got %v\n%v", expect, got, data1)
+	}
+	data1.FilterScores(2)
+	expect = 2
+	got = len(data1.LeaderboardsData[0].Scores)
+	if len(data1.LeaderboardsData[0].Scores) != len(data1.LeaderboardsData[1].Scores) {
+		t.Errorf("Boards not filtered the same:\n%v\n%v", data1.LeaderboardsData[0].Scores, data1.LeaderboardsData[1].Scores)
+	}
+	if expect != got {
+		t.Errorf("Filtered to many scores, expected %v got %v\n%v", expect, got, data1)
+	}
+	data1.FilterScores(1)
+	expect = 1
+	got = len(data1.LeaderboardsData[0].Scores)
+	if len(data1.LeaderboardsData[0].Scores) != len(data1.LeaderboardsData[1].Scores) {
+		t.Errorf("Boards not filtered the same:\n%v\n%v", data1.LeaderboardsData[0].Scores, data1.LeaderboardsData[1].Scores)
+	}
+	if expect != got {
+		t.Errorf("Scores not filtered correctly, expected %v got %v\n%v", expect, got, data1)
+	}
+	data1.FilterScores(0)
+	expect = 0
+	got = len(data1.LeaderboardsData[0].Scores)
+	if len(data1.LeaderboardsData[0].Scores) != len(data1.LeaderboardsData[1].Scores) {
+		t.Errorf("Boards not filtered the same:\n%v\n%v", data1.LeaderboardsData[0].Scores, data1.LeaderboardsData[1].Scores)
+	}
+	if expect != got {
+		t.Errorf("Scores not filtered correctly, expected %v got %v\n%v", expect, got, data1)
+	}
+}
+
+func TestBoardTruncateScores(t *testing.T) {
+	board1 := &Data1().LeaderboardsData[0]
+	board1.TruncateScores(3)
+	expect := 2
+	got := len(board1.Scores)
+	if expect != got {
+		t.Errorf("Filtered to many scores, expected %v got %v\n%v", expect, got, board1.Scores)
+	}
+	board1.TruncateScores(2)
+	expect = 2
+	got = len(board1.Scores)
+	if expect != got {
+		t.Errorf("Filtered to many scores, expected %v got %v\n%v", expect, got, board1.Scores)
+	}
+	board1.TruncateScores(1)
+	expect = 1
+	got = len(board1.Scores)
+	if expect != got {
+		t.Errorf("Scores not filtered correctly, expected %v got %v\n%v", expect, got, board1.Scores)
+	}
+	board1.TruncateScores(0)
+	expect = 0
+	got = len(board1.Scores)
+	if expect != got {
+		t.Errorf("Scores not filtered correctly, expected %v got %v\n%v", expect, got, board1.Scores)
+	}
+}
+
+func TestBoardDataTruncateScores(t *testing.T) {
+	data1 := Data1()
+	data1.LeaderboardsData = append(data1.LeaderboardsData, data1.LeaderboardsData[0])
+	data1.TruncateScores(3)
+	expect := 2
+	got := len(data1.LeaderboardsData[0].Scores)
+	if len(data1.LeaderboardsData[0].Scores) != len(data1.LeaderboardsData[1].Scores) {
+		t.Errorf("Boards not filtered the same:\n%v\n%v", data1.LeaderboardsData[0].Scores, data1.LeaderboardsData[1].Scores)
+	}
+	if expect != got {
+		t.Errorf("Filtered to many scores, expected %v got %v\n%v", expect, got, data1)
+	}
+	data1.TruncateScores(2)
+	expect = 2
+	got = len(data1.LeaderboardsData[0].Scores)
+	if len(data1.LeaderboardsData[0].Scores) != len(data1.LeaderboardsData[1].Scores) {
+		t.Errorf("Boards not filtered the same:\n%v\n%v", data1.LeaderboardsData[0].Scores, data1.LeaderboardsData[1].Scores)
+	}
+	if expect != got {
+		t.Errorf("Filtered to many scores, expected %v got %v\n%v", expect, got, data1)
+	}
+	data1.TruncateScores(1)
+	expect = 1
+	got = len(data1.LeaderboardsData[0].Scores)
+	if len(data1.LeaderboardsData[0].Scores) != len(data1.LeaderboardsData[1].Scores) {
+		t.Errorf("Boards not filtered the same:\n%v\n%v", data1.LeaderboardsData[0].Scores, data1.LeaderboardsData[1].Scores)
+	}
+	if expect != got {
+		t.Errorf("Scores not filtered correctly, expected %v got %v\n%v", expect, got, data1)
+	}
+	data1.TruncateScores(0)
+	expect = 0
+	got = len(data1.LeaderboardsData[0].Scores)
+	if len(data1.LeaderboardsData[0].Scores) != len(data1.LeaderboardsData[1].Scores) {
+		t.Errorf("Boards not filtered the same:\n%v\n%v", data1.LeaderboardsData[0].Scores, data1.LeaderboardsData[1].Scores)
+	}
+	if expect != got {
+		t.Errorf("Scores not filtered correctly, expected %v got %v\n%v", expect, got, data1)
+	}
+}

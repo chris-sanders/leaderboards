@@ -49,10 +49,12 @@ func GetRemoteFiles() {
 	db_path := fmt.Sprintf("%v/*-db.dat", config.Sync.Folder)
 	db_files, _ := client.Glob(db_path)
 	for _, file := range db_files {
-		if base := filepath.Base(file); strings.HasPrefix(base, config.Global.Account) {
+		base := filepath.Base(file)
+		if strings.HasPrefix(base, config.Global.Account) {
 			log.Tracef("Not downloading remote copy of my own database: %v\n", base)
 			continue // do not download our own db file
 		}
+		log.Info("Downloading database: %v\n", base)
 		remote_file, _ := client.Open(file)
 		defer remote_file.Close()
 		local_file, _ := os.Create(filepath.Base(file))

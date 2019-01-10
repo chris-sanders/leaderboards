@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -131,15 +132,6 @@ func (b *BoardData) Marshal() string {
 	var bld strings.Builder
 	for _, board := range b.LeaderboardsData {
 		if len(board.Scores) > 0 {
-			// byteArray, err := json.MarshalIndent(board.Scores, board.LeaderboardId, " ")
-			/*
-				byteArray, err := json.Marshal(board.Scores)
-				if err != nil {
-					log.Error("Unalbe to Marshal board: %v", err)
-				}
-				bld.Write(byteArray)
-				bld.WriteString("\n")
-			*/
 			values := fmt.Sprintf("%v: \n\t", board.LeaderboardId)
 			bld.WriteString(values)
 			for _, score := range board.Scores {
@@ -150,4 +142,42 @@ func (b *BoardData) Marshal() string {
 		}
 	}
 	return bld.String()
+}
+
+func (b *Board) FilterScores(limit int) {
+	var people = map[string]int{}
+	filtered := b.Scores[:0]
+	sort.Slice(b.Scores, func(i, j int) bool {
+		return b.Scores[i].Score > b.Scores[j].Score
+	})
+	for _, score := range b.Scores {
+		if people[score.PlayerName] < limit {
+			people[score.PlayerName] += 1
+			filtered = append(filtered, score)
+		} else {
+			log.Tracef("Filtering %v/%v, limit reached %v", b.LeaderboardId, score.PlayerName, limit)
+		}
+	}
+	b.Scores = filtered
+}
+
+func (b *BoardData) FilterScores(limit int) {
+	for i, _ := range b.LeaderboardsData {
+		b.LeaderboardsData[i].FilterScores(limit)
+	}
+}
+
+func (b *Board) TruncateScores(t int) {
+	sort.Slice(b.Scores, func(i, j int) bool {
+		return b.Scores[i].Score > b.Scores[j].Score
+	})
+	if len(b.Scores) > t {
+		b.Scores = b.Scores[:t]
+	}
+}
+
+func (b *BoardData) TruncateScores(t int) {
+	for i, _ := range b.LeaderboardsData {
+		b.LeaderboardsData[i].TruncateScores(t)
+	}
 }
