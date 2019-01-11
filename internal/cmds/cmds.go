@@ -21,13 +21,6 @@ func UpdateLocalDb(config *cfg.Config) {
 
 	data_file := fmt.Sprintf("%v-db.dat", config.Global.Account)
 	db_data := &bt.BoardData{}
-	//err = db_data.Load(data_file)
-	//if err != nil {
-	//		log.Warnf("Error loading db file: %v \n", err)
-	//	}
-	//		game_data.Filter(db_data)
-
-	//	var db_data *bt.BoardData
 	paths, err := filepath.Glob("*-db.dat")
 	for _, file := range paths {
 		log.Infof("Filtering known scores from %v", file)
@@ -54,6 +47,43 @@ func UpdateLocalDb(config *cfg.Config) {
 	} else {
 		fmt.Println("No new local data")
 		log.Info("No new local data")
+	}
+
+}
+
+func WriteGameFile(config *cfg.Config) {
+	merge_data := &bt.BoardData{}
+	paths, err := filepath.Glob("*-db.dat")
+	for _, file := range paths {
+		fmt.Printf("Processing scores in %v\n", file)
+		log.Infof("Processing scores in %v", file)
+		if strings.HasPrefix(file, config.Global.Account) {
+			local_data := &bt.BoardData{}
+			err := local_data.Load(file)
+			if err != nil {
+				fmt.Printf("Error loading file: %v", err)
+				log.Panic("Error loading file: %v", err)
+			}
+			local_data.FilterScores(config.Import.Local_limit)
+			merge_data.Add(local_data)
+		} else {
+			remote_data := &bt.BoardData{}
+			err := remote_data.Load(file)
+			if err != nil {
+				fmt.Printf("Error loading file: %v\n", err)
+				log.Warnf("Error loading file: %v", err)
+			}
+			remote_data.FilterScores(config.Import.Remote_limit)
+			merge_data.Add(remote_data)
+		}
+	}
+	merge_data.TruncateScores(10)
+	fmt.Println("Writing new game data file")
+	log.Info("Writing new game data file")
+	err = merge_data.Save(config.Global.Local_file)
+	if err != nil {
+		fmt.Printf("Error writing file: %v", err)
+		log.Panic("Error writing file: %v", err)
 	}
 
 }

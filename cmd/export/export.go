@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chris-sanders/leaderboards/internal/cfg"
 	"github.com/chris-sanders/leaderboards/internal/cmds"
+	"github.com/chris-sanders/leaderboards/internal/sftp"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
@@ -23,4 +24,9 @@ func main() {
 	}
 
 	cmds.UpdateLocalDb(config)
+	sftp.InitClient(config)
+	fmt.Println("Connected to server")
+	defer sftp.CloseClient()
+	sftp.UploadDb()
+	fmt.Println("File uploaded")
 }

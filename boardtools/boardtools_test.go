@@ -137,7 +137,7 @@ func TestBoardDataFilter(t *testing.T) {
 	}
 	data1.Filter(data1)
 	expect = 0
-	got = len(data1.LeaderboardsData[0].Scores)
+	got = len(data1.LeaderboardsData)
 	if got != expect {
 		t.Errorf("Expected %v scores got %v", expect, got)
 	}
@@ -190,11 +190,6 @@ func TestBoardDataAdd(t *testing.T) {
 	// data1 = &Data1()
 	data2 = &BoardData{}
 	data2.Add(data1)
-	/*
-		if len(data2.LeaderboardsData) != len(data1.LeaderboardsData) {
-			t.Errorf("Add new board in board data failed")
-		}
-	*/
 	if !cmp.Equal(data1.LeaderboardsData, data2.LeaderboardsData) {
 		t.Errorf("BoardData add didn't add new data to empty board:\n%v",
 			cmp.Diff(data1.LeaderboardsData,
@@ -262,10 +257,7 @@ func TestBoardDataFilterScores(t *testing.T) {
 	}
 	data1.FilterScores(0)
 	expect = 0
-	got = len(data1.LeaderboardsData[0].Scores)
-	if len(data1.LeaderboardsData[0].Scores) != len(data1.LeaderboardsData[1].Scores) {
-		t.Errorf("Boards not filtered the same:\n%v\n%v", data1.LeaderboardsData[0].Scores, data1.LeaderboardsData[1].Scores)
-	}
+	got = len(data1.LeaderboardsData)
 	if expect != got {
 		t.Errorf("Scores not filtered correctly, expected %v got %v\n%v", expect, got, data1)
 	}

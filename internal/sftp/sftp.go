@@ -29,7 +29,6 @@ func InitClient(iconfig *cfg.Config) {
 	if err != nil {
 		log.Panic("Failed to dial: " + err.Error())
 	}
-	// fmt.Println("Successfully connected to server.")
 	log.Info("Successfully connected to ssh server.")
 
 	// open an SFTP session over an existing ssh connection.
@@ -38,7 +37,6 @@ func InitClient(iconfig *cfg.Config) {
 		log.Fatal(err)
 	}
 	client = sftp
-	// return sftp
 }
 
 func CloseClient() {
@@ -54,11 +52,22 @@ func GetRemoteFiles() {
 			log.Tracef("Not downloading remote copy of my own database: %v\n", base)
 			continue // do not download our own db file
 		}
-		log.Info("Downloading database: %v\n", base)
+		log.Info("Downloading database: %v \n", base)
 		remote_file, _ := client.Open(file)
 		defer remote_file.Close()
 		local_file, _ := os.Create(filepath.Base(file))
 		defer local_file.Close()
 		remote_file.WriteTo(local_file)
 	}
+}
+
+func UploadDb() {
+	local_path := fmt.Sprintf("%v-db.dat", config.Global.Account)
+	local_file, _ := os.Open(local_path)
+	defer local_file.Close()
+	db_path := filepath.Join(config.Sync.Folder, local_path)
+	db_file, _ := client.Create(db_path)
+	defer db_file.Close()
+	log.Infof("Uploading file %v", db_path)
+	db_file.ReadFrom(local_file)
 }

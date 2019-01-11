@@ -81,12 +81,17 @@ func (b *Board) Filter(f *Board) error {
 }
 
 func (b *BoardData) Filter(f *BoardData) {
+	filtered := b.LeaderboardsData[:0]
 	for idxb := range b.LeaderboardsData {
 		for idxf := range f.LeaderboardsData {
 			b.LeaderboardsData[idxb].Filter(&f.LeaderboardsData[idxf])
 
 		}
+		if len(b.LeaderboardsData[idxb].Scores) > 0 {
+			filtered = append(filtered, b.LeaderboardsData[idxb])
+		}
 	}
+	b.LeaderboardsData = filtered
 }
 
 func (b *Board) Add(a *Board) error {
@@ -162,9 +167,14 @@ func (b *Board) FilterScores(limit int) {
 }
 
 func (b *BoardData) FilterScores(limit int) {
+	filtered := b.LeaderboardsData[:0]
 	for i, _ := range b.LeaderboardsData {
 		b.LeaderboardsData[i].FilterScores(limit)
+		if len(b.LeaderboardsData[i].Scores) > 0 {
+			filtered = append(filtered, b.LeaderboardsData[i])
+		}
 	}
+	b.LeaderboardsData = filtered
 }
 
 func (b *Board) TruncateScores(t int) {
