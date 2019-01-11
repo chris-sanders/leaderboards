@@ -1,5 +1,6 @@
 *.swp
 *.dat
 *.log
+*.exe
 coverage.out
 settings.yaml
