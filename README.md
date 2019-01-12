@@ -14,7 +14,7 @@ Global.account: A name that uniquely identifies your file on the sftp server
 Global.local_folder: The folder with game data, by default expands to the games
 default folder location.
 Global.logging: Not used currently
-Import.local_limit: Maximum number scores for each local player to add to your game
+Import.local_limit: Maximum number of scores for each local player to add to your game
 file.
 Import.remote_limit: Maximum number of scores for each remote player to add to
 your game file.
