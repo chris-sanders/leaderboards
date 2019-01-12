@@ -51,7 +51,7 @@ func postprocess(c *Config) {
 	var full_path string
 	switch c.Global.Local_folder {
 	case "APPDATA":
-		full_path = filepath.Join(os.ExpandEnv("${APPDATA}"), "LocalLeaderboards.dat")
+		full_path = filepath.Join(os.ExpandEnv("${userprofile}/AppData/LocalLow/Hyperbolic Magnetism/Beat Saber"), "LocalLeaderboards.dat")
 	default:
 		full_path = filepath.Join(c.Global.Local_folder, "LocalLeaderboards.dat")
 	}
