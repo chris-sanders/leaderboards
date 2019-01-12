@@ -66,7 +66,10 @@ func UploadDb() {
 	local_file, _ := os.Open(local_path)
 	defer local_file.Close()
 	db_path := filepath.Join(config.Sync.Folder, local_path)
-	db_file, _ := client.Create(db_path)
+	db_file, err := client.Create(filepath.ToSlash(db_path))
+	if err != nil {
+		log.Error("Failed to create file: ", err.Error())
+	}
 	defer db_file.Close()
 	log.Infof("Uploading file %v", db_path)
 	db_file.ReadFrom(local_file)

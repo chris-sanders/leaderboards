@@ -38,8 +38,8 @@ func UpdateLocalDb(config *cfg.Config) {
 
 	new_scores := game_data.Marshal()
 	if len(new_scores) > 0 {
-		fmt.Printf("Adding new scores:\n%v \n", new_scores)
-		log.Infof("Adding new scores:\n%v \n", new_scores)
+		fmt.Printf("Adding new scores:\n %v \n", new_scores)
+		log.Infof("Adding new scores:\n %v \n", new_scores)
 		fmt.Println("Writing database file")
 		log.Info("Writing database file")
 		db_data.Add(game_data)
