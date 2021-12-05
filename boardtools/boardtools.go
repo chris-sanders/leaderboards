@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"sort"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Score struct {
@@ -85,7 +86,6 @@ func (b *BoardData) Filter(f *BoardData) {
 	for idxb := range b.LeaderboardsData {
 		for idxf := range f.LeaderboardsData {
 			b.LeaderboardsData[idxb].Filter(&f.LeaderboardsData[idxf])
-
 		}
 		if len(b.LeaderboardsData[idxb].Scores) > 0 {
 			filtered = append(filtered, b.LeaderboardsData[idxb])
@@ -150,7 +150,7 @@ func (b *BoardData) Marshal() string {
 }
 
 func (b *Board) FilterScores(limit int) {
-	var people = map[string]int{}
+	people := map[string]int{}
 	filtered := b.Scores[:0]
 	sort.Slice(b.Scores, func(i, j int) bool {
 		return b.Scores[i].Score > b.Scores[j].Score

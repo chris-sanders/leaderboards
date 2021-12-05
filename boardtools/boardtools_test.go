@@ -2,14 +2,17 @@ package boardtools
 
 import (
 	"fmt"
-	"github.com/google/go-cmp/cmp"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
-var data1 = Data1()
-var data2 = Data2()
+var (
+	data1 = Data1()
+	data2 = Data2()
+)
 
 func Data1() *BoardData {
 	data := &BoardData{

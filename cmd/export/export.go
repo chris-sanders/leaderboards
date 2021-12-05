@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/chris-sanders/leaderboards/internal/cfg"
 	"github.com/chris-sanders/leaderboards/internal/cmds"
 	"github.com/chris-sanders/leaderboards/internal/sftp"
 	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 func main() {
@@ -15,8 +16,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer logFile.Close()
-	log.SetOutput(logFile)
 
+	log.SetOutput(logFile)
 	config, err := (&cfg.Config{}).New()
 	if err != nil {
 		fmt.Printf("Error loading config: %v \n", err)
